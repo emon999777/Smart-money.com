@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CashReward App</title>
+    <title>Smart money.com</title>
     
     <!-- Aapka Naya Ad Code -->
-    <script src='//libtl.com/sdk.js' data-zone='9391539' data-sdk='show_9391539'></script>
+    <script src='//libtl.com/sdk.js' data-zone='9783879' data-sdk='show_9783879'></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -63,7 +63,7 @@
 
     <!-- Authentication Section -->
     <div id="auth-section" class="min-h-screen p-6 flex-col justify-center main-page">
-        <h1 class="text-4xl font-bold text-center mb-2 text-accent">CashReward</h1>
+        <h1 class="text-4xl font-bold text-center mb-2 text-accent">Smart money.com</h1>
         <p class="text-center text-gray-400 mb-8">Login or Sign Up to continue</p>
         <div id="auth-container">
             <div id="login-view">
@@ -85,7 +85,7 @@
     <!-- Main App Container -->
     <div id="app-container" class="min-h-screen flex-col main-page">
         <header class="flex items-center justify-between p-4 sticky top-0 bg-opacity-80 backdrop-blur-md z-10 dark-bg">
-            <h1 class="text-xl font-bold">CashReward</h1>
+            <h1 class="text-xl font-bold">Smart money.com</h1>
             <div class="flex items-center space-x-4">
                 <div id="notification-bell" class="relative cursor-pointer">
                     <i data-lucide="bell" class="w-6 h-6"></i>
@@ -833,23 +833,23 @@
                 return showAlert("Aapki aaj ki ad dekhne ki seema poori ho gayi hai.");
             }
             
-            if (typeof window.show_9391539 !== 'function') {
+            if (typeof window.show_9783879 !== 'function') {
                 return showAlert("Ad service abhi uplabdh nahi hai. Kripya baad mein prayas karein.");
             }
             
             let adPromise;
             switch(taskType) {
                 case 'interstitial':
-                    adPromise = window.show_9391539();
+                    adPromise = window.show_9783879();
                     break;
                 case 'popup':
-                    adPromise = window.show_9391539('pop');
+                    adPromise = window.show_9783879('pop');
                     break;
                 case 'inApp':
-                    adPromise = window.show_9391539({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+                    adPromise = window.show_9783879({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
                     break;
                 case 'miniApp':
-                    adPromise = window.show_9391539();
+                    adPromise = window.show_9783879();
                     break;
                 default:
                     return;
@@ -862,9 +862,9 @@
                 
                 let rewardAmount = 0;
                 if (taskType === 'miniApp') {
-                    rewardAmount = 100; // Mini App ka zyada reward
+                    rewardAmount = 5; // Mini App ka zyada reward
                 } else if (taskType !== 'inApp') {
-                    rewardAmount = 50;
+                    rewardAmount = 5;
                 }
 
                 if (rewardAmount > 0) {
