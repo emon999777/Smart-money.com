@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CashReward App</title>
+    
+    <!-- Aapka Naya Ad Code -->
+    <script src='//libtl.com/sdk.js' data-zone='9391539' data-sdk='show_9391539'></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #ffffff; }
+        .dark-bg { background-color: #121212; }
+        .card-bg { background-color: #1e1e1e; }
+        .border-accent { border-color: #ff8c00; }
+        .text-accent { color: #ff8c00; }
+        .btn, .btn-accent, .btn-outline-accent { transition: all 0.2s ease-in-out; transform: scale(1); }
+        .btn:active, .btn-accent:active, .btn-outline-accent:active { transform: scale(0.95); }
+        .btn-accent { background-color: #ff8c00; color: #121212; font-weight: bold; }
+        .btn-accent:hover { background-color: #e67e00; }
+        .btn-outline-accent { border: 1px solid #ff8c00; color: #ff8c00; }
+        .btn-outline-accent:hover { background-color: #ff8c00; color: #121212; }
+        .input-field { background-color: #2c2c2c; border: 1px solid #444; }
+        .main-page { display: none; }
+        .main-page.active { display: flex; animation: fadeIn 0.5s ease-in-out; }
+        .sub-page { display: none; }
+        .sub-page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        .bottom-nav a.active { color: #ff8c00; }
+        .notification-dot {
+            position: absolute; top: -2px; right: -2px; width: 10px; height: 10px;
+            background-color: #ef4444; border-radius: 50%; border: 2px solid #121212; display: none;
+        }
+        .timer { 
+            background-color: #ff8c00; 
+            color: #121212; 
+            padding: 2px 6px; 
+            border-radius: 12px; 
+            font-size: 12px; 
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        .pending { 
+            background-color: #f59e0b; 
+            color: white; 
+            padding: 2px 6px; 
+            border-radius: 12px; 
+            font-size: 12px; 
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="max-w-md mx-auto">
+
+    <!-- App Loader -->
+    <div id="loader" class="hidden fixed inset-0 dark-bg bg-opacity-75 flex items-center justify-center z-50">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-accent"></div>
+    </div>
+
+    <!-- Authentication Section -->
+    <div id="auth-section" class="min-h-screen p-6 flex-col justify-center main-page">
+        <h1 class="text-4xl font-bold text-center mb-2 text-accent">CashReward</h1>
+        <p class="text-center text-gray-400 mb-8">Login or Sign Up to continue</p>
+        <div id="auth-container">
+            <div id="login-view">
+                <input id="login-email" type="email" placeholder="Email" class="w-full p-3 rounded-lg input-field mb-4">
+                <input id="login-password" type="password" placeholder="Password" class="w-full p-3 rounded-lg input-field mb-4">
+                <button id="login-btn" class="w-full p-3 rounded-lg btn-accent mb-4">Login</button>
+                <p class="text-center text-gray-400">নতুন অ্যাকাউন্ট? <a href="#" id="show-signup" class="font-semibold text-accent">Sign Up</a></p>
+            </div>
+            <div id="signup-view" class="hidden">
+                 <input id="signup-name" type="text" placeholder="Full Name" class="w-full p-3 rounded-lg input-field mb-4">
+                <input id="signup-email" type="email" placeholder="Email" class="w-full p-3 rounded-lg input-field mb-4">
+                <input id="signup-password" type="password" placeholder="Password" class="w-full p-3 rounded-lg input-field mb-4">
+                <button id="signup-btn" class="w-full p-3 rounded-lg btn-accent mb-4">Sign Up</button>
+                <p class="text-center text-gray-400">আগে থেকে অ্যাকাউন্ট আছে? <a href="#" id="show-login" class="font-semibold text-accent">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app-container" class="min-h-screen flex-col main-page">
+        <header class="flex items-center justify-between p-4 sticky top-0 bg-opacity-80 backdrop-blur-md z-10 dark-bg">
+            <h1 class="text-xl font-bold">CashReward</h1>
+            <div class="flex items-center space-x-4">
+                <div id="notification-bell" class="relative cursor-pointer">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <div id="notification-dot" class="notification-dot"></div>
+                </div>
+                <i data-lucide="user" class="w-6 h-6 cursor-pointer" onclick="navigateTo('profile-page')"></i>
+            </div>
+        </header>
+
+        <main class="flex-grow">
+            <!-- Home Page -->
+            <div id="home-page" class="p-4 space-y-6 sub-page">
+                <div class="card-bg p-4 rounded-lg flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm">Your Balance</p>
+                        <p class="text-3xl font-bold"><span id="coin-balance">0</span> Coins</p>
+                    </div>
+                    <button id="home-withdraw-btn" class="bg-white text-black font-semibold px-6 py-2 rounded-lg">Withdraw</button>
+                </div>
+                <section>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-semibold">Daily Tasks</h2>
+                            <p class="text-sm text-gray-400 mb-4">Complete tasks to get rewards.</p>
+                        </div>
+                        <p class="text-sm text-gray-400">Ads Left: <span id="ads-left-count">...</span></p>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="bg-orange-500 p-3 rounded-lg flex items-center justify-between text-black">
+                            <div class="flex items-center space-x-3"><span class="text-3xl">🤩</span><div><h3 class="font-bold">Watch Short Ad</h3><p class="text-xs font-medium">Rewarded Interstitial</p></div></div>
+                            <button class="bg-white text-orange-500 font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('interstitial')">Claim</button>
+                        </div>
+                        <div class="card-bg p-3 rounded-lg flex items-center justify-between">
+                            <div class="flex items-center space-x-3"><span class="text-3xl">😎</span><div><h3 class="font-semibold">Click for Reward</h3><p class="text-xs text-gray-400">Rewarded Popup</p></div></div>
+                            <button class="bg-white text-black font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('popup')">Claim</button>
+                        </div>
+                        <div class="card-bg p-3 rounded-lg flex items-center justify-between">
+                            <div class="flex items-center space-x-3"><span class="text-3xl">👀</span><div><h3 class="font-semibold">Watch a Video</h3><p class="text-xs text-gray-400">In-App Interstitial</p></div></div>
+                            <button class="bg-gray-700 text-white font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('inApp')">Start</button>
+                        </div>
+                        <div class="card-bg p-3 rounded-lg flex items-center justify-between">
+                            <div class="flex items-center space-x-3"><span class="text-3xl">🎮</span><div><h3 class="font-semibold">Play Mini App</h3><p class="text-xs text-gray-400">Get a big reward!</p></div></div>
+                            <button class="bg-blue-500 text-white font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('miniApp')">Play</button>
+                        </div>
+                        <div class="bg-gradient-to-r from-purple-600 to-blue-600 p-3 rounded-lg flex items-center justify-between text-white">
+                            <div class="flex items-center space-x-3"><span class="text-3xl">💼</span><div><h3 class="font-bold">Daily Jobs</h3><p class="text-xs font-medium">Watch & Earn 10 Coins</p></div></div>
+                            <button class="bg-white text-purple-600 font-bold px-6 py-2 rounded-lg text-sm btn" onclick="navigateTo('daily-jobs-page')">Start</button>
+                        </div>
+                        <!-- Pro Jobs Button -->
+                        <div class="bg-gradient-to-r from-red-600 to-pink-600 p-3 rounded-lg flex items-center justify-between text-white">
+                            <div class="flex items-center space-x-3"><span class="text-3xl">🔥</span><div><h3 class="font-bold">Pro Jobs</h3><p class="text-xs font-medium">Sign Up & Earn Big Rewards</p></div></div>
+                            <button class="bg-white text-red-600 font-bold px-6 py-2 rounded-lg text-sm btn" onclick="navigateTo('pro-jobs-page')">Start</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Wallet Page -->
+            <div id="wallet-page" class="p-4 space-y-6 sub-page">
+                <h2 class="text-xl font-bold text-center">My Wallet</h2>
+                <div class="card-bg p-4 rounded-lg">
+                    <h3 class="font-semibold mb-3">Withdraw Earnings</h3>
+                    <p class="text-sm text-gray-400 mb-1">Current Balance: <span class="font-bold text-accent"><span id="wallet-coin-balance">0</span> Coins</span></p>
+                    <p class="text-sm text-gray-400 mb-2">Minimum Withdrawal: <span id="min-withdrawal-info">...</span> Coins</p>
+                    <p class="text-sm text-gray-400 mb-4 font-semibold" id="coin-value-info">...</p>
+                    <input id="withdraw-amount" type="number" placeholder="কয়েন পরিমাণ লিখুন" class="w-full p-3 rounded-lg input-field mb-3">
+                    <select id="withdraw-method" class="w-full p-3 rounded-lg input-field mb-3">
+                        <option value="">Select Method</option>
+                        <option value="Bkash">Bkash</option>
+                        <option value="Nagad">Nagad</option>
+                        <option value="UPI">UPI</option>
+                        <option value="Paytm">Paytm</option>
+                    </select>
+                    <div id="payment-details-container"></div>
+                    <button id="withdraw-btn" class="w-full p-3 rounded-lg btn-accent mt-3">Request Withdrawal</button>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Withdrawal History</h3>
+                    <div id="withdrawal-history-list" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- Refer Page -->
+            <div id="refer-page" class="p-4 space-y-6 sub-page">
+                 <h2 class="text-xl font-bold text-center">Refer & Earn</h2>
+                 <div class="card-bg p-6 rounded-lg text-center">
+                     <p class="text-gray-400 mb-2">আপনার রেফারেল কোড</p>
+                     <div class="bg-gray-800 p-3 rounded-lg flex items-center justify-center mb-4">
+                         <span id="referral-code" class="text-2xl font-bold tracking-widest">LOADING...</span>
+                         <button id="copy-code-btn" class="ml-4"><i data-lucide="copy" class="w-6 h-6 text-gray-400"></i></button>
+                     </div>
+                     <p class="text-sm text-gray-300">বন্ধুদের সাথে কোড শেয়ার করুন।</p>
+                 </div>
+                 <button id="share-btn" class="w-full p-3 rounded-lg btn-accent">কোড শেয়ার করুন</button>
+                 <div class="card-bg p-4 rounded-lg mt-6">
+                    <h3 class="font-semibold mb-3 text-center">রেফারেল কোড আছে?</h3>
+                    <input id="enter-referral-code" type="text" placeholder="এখানে কোড লিখুন" class="w-full p-3 rounded-lg input-field mb-3">
+                    <button id="apply-referral-btn" class="w-full p-3 rounded-lg btn-outline-accent">কোড ব্যবহার করুন</button>
+                 </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profile-page" class="p-4 space-y-6 sub-page">
+                <h2 class="text-xl font-bold text-center mb-4">Profile</h2>
+                <div class="flex flex-col items-center">
+                    <img src="https://placehold.co/100x100/1e1e1e/ff8c00?text=U" class="rounded-full mb-2">
+                    <h2 id="profile-name" class="text-xl font-bold">User Name</h2>
+                    <p id="profile-email" class="text-gray-400">user@email.com</p>
+                </div>
+                <!-- Added admin panel access button for admin users -->
+                <div id="admin-access" class="hidden">
+                    <button onclick="navigateTo('admin-panel')" class="w-full p-3 rounded-lg bg-purple-600 text-white font-bold mb-3">Admin Panel</button>
+                </div>
+                <button id="logout-btn" class="w-full mt-6 p-3 rounded-lg bg-red-600 text-white font-bold">Logout</button>
+            </div>
+            
+            <!-- Notifications Page -->
+            <div id="notifications-page" class="p-4 space-y-4 sub-page">
+                <h2 class="text-xl font-bold text-center">Notifications</h2>
+                <div id="notifications-list" class="space-y-3"></div>
+            </div>
+
+            <!-- Daily Jobs Page -->
+            <div id="daily-jobs-page" class="p-4 space-y-6 sub-page">
+                <div class="flex items-center justify-between mb-4">
+                    <button onclick="navigateTo('home-page')" class="flex items-center text-gray-400 hover:text-white">
+                        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                        Back
+                    </button>
+                    <h2 class="text-xl font-bold">Daily Jobs</h2>
+                    <div></div>
+                </div>
+                
+                <div class="card-bg p-4 rounded-lg text-center">
+                    <h3 class="text-lg font-semibold mb-2">Watch & Earn</h3>
+                    <p class="text-gray-400 text-sm mb-4">Click on any job below, watch the ad for 15 seconds, and earn 10 coins!</p>
+                    <div class="flex items-center justify-center space-x-4 text-sm">
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                            <span>Available</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                            <span>Cooldown</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="daily-jobs-container" class="space-y-3">
+                    <!-- Job buttons will be dynamically generated here -->
+                </div>
+            </div>
+
+            <!-- Pro Jobs Page -->
+            <div id="pro-jobs-page" class="p-4 space-y-6 sub-page">
+                <div class="flex items-center justify-between mb-4">
+                    <button onclick="navigateTo('home-page')" class="flex items-center text-gray-400 hover:text-white">
+                        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                        Back
+                    </button>
+                    <h2 class="text-xl font-bold">Pro Jobs</h2>
+                    <div></div>
+                </div>
+                
+                <div class="card-bg p-4 rounded-lg text-center">
+                    <h3 class="text-lg font-semibold mb-2">Sign Up & Earn</h3>
+                    <p class="text-gray-400 text-sm mb-4">Click on any job below, sign up for the service, submit screenshots, and earn rewards!</p>
+                    <div class="flex items-center justify-center space-x-4 text-sm">
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                            <span>Available</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
+                            <span>Pending</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                            <span>Cooldown</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pro-jobs-container" class="space-y-3">
+                    <!-- Pro job buttons will be dynamically generated here -->
+                </div>
+            </div>
+
+            <!-- Pro Job Submission Modal -->
+            <div id="pro-job-submission-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+                <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold" id="pro-job-modal-title">Submit Screenshots</h3>
+                        <button onclick="closeProJobModal()" class="text-gray-400 hover:text-white">
+                            <i data-lucide="x" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-400 mb-2">Please sign up using the link below:</p>
+                            <a id="pro-job-link" href="#" target="_blank" class="block text-blue-400 underline mb-4">Click here to sign up</a>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Before Sign Up Screenshot URL</label>
+                            <input type="url" id="before-screenshot-url" class="w-full p-3 rounded-lg input-field" placeholder="Paste screenshot URL">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">After Sign Up Screenshot URL</label>
+                            <input type="url" id="after-screenshot-url" class="w-full p-3 rounded-lg input-field" placeholder="Paste screenshot URL">
+                        </div>
+                        
+                        <button onclick="submitProJobScreenshots()" class="w-full p-3 rounded-lg btn-accent">Submit Screenshots</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Panel -->
+            <div id="admin-panel" class="p-4 space-y-6 sub-page">
+                <div class="flex items-center justify-between mb-4">
+                    <button onclick="navigateTo('profile-page')" class="flex items-center text-gray-400 hover:text-white">
+                        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                        Back
+                    </button>
+                    <h2 class="text-xl font-bold">Admin Panel</h2>
+                    <div></div>
+                </div>
+
+                <!-- Admin Stats Dashboard -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="card-bg p-4 rounded-lg text-center">
+                        <p class="text-gray-400 text-sm">Total Users</p>
+                        <p class="text-2xl font-bold" id="admin-total-users">0</p>
+                    </div>
+                    <div class="card-bg p-4 rounded-lg text-center">
+                        <p class="text-gray-400 text-sm">Jobs Completed Today</p>
+                        <p class="text-2xl font-bold" id="admin-jobs-today">0</p>
+                    </div>
+                    <div class="card-bg p-4 rounded-lg text-center">
+                        <p class="text-gray-400 text-sm">Total Coins Earned</p>
+                        <p class="text-2xl font-bold" id="admin-total-coins">0</p>
+                    </div>
+                    <div class="card-bg p-4 rounded-lg text-center">
+                        <p class="text-gray-400 text-sm">Pending Withdrawals</p>
+                        <p class="text-2xl font-bold" id="admin-pending-withdrawals">0</p>
+                    </div>
+                </div>
+
+                <!-- Admin Tabs -->
+                <div class="flex space-x-2 mb-4">
+                    <button onclick="showAdminTab('jobs')" class="admin-tab-btn flex-1 p-2 rounded-lg bg-purple-600 text-white font-semibold" id="jobs-tab">Job Management</button>
+                    <button onclick="showAdminTab('users')" class="admin-tab-btn flex-1 p-2 rounded-lg card-bg text-gray-400 font-semibold" id="users-tab">User Management</button>
+                    <button onclick="showAdminTab('withdrawals')" class="admin-tab-btn flex-1 p-2 rounded-lg card-bg text-gray-400 font-semibold" id="withdrawals-tab">Withdrawals</button>
+                    <button onclick="showAdminTab('pro-jobs')" class="admin-tab-btn flex-1 p-2 rounded-lg card-bg text-gray-400 font-semibold" id="pro-jobs-tab">Pro Jobs</button>
+                </div>
+
+                <!-- Job Management Tab -->
+                <div id="admin-jobs-tab" class="admin-tab-content">
+                    <div class="card-bg p-4 rounded-lg mb-4">
+                        <h3 class="font-semibold mb-3">Add/Edit Job</h3>
+                        <div class="space-y-3">
+                            <select id="admin-job-select" class="w-full p-3 rounded-lg input-field">
+                                <option value="">Select Job to Edit</option>
+                            </select>
+                            <input id="admin-job-name" type="text" placeholder="Job Name" class="w-full p-3 rounded-lg input-field">
+                            <input id="admin-job-link" type="url" placeholder="Job Link" class="w-full p-3 rounded-lg input-field">
+                            <div class="flex space-x-2">
+                                <button onclick="saveJobSettings()" class="flex-1 p-3 rounded-lg btn-accent">Save Job</button>
+                                <button onclick="resetJobForm()" class="flex-1 p-3 rounded-lg btn-outline-accent">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-bg p-4 rounded-lg">
+                        <h3 class="font-semibold mb-3">Recent Job Completions</h3>
+                        <div id="admin-recent-jobs" class="space-y-2 max-h-64 overflow-y-auto">
+                            <!-- Recent job completions will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management Tab -->
+                <div id="admin-users-tab" class="admin-tab-content hidden">
+                    <div class="card-bg p-4 rounded-lg mb-4">
+                        <h3 class="font-semibold mb-3">User Search</h3>
+                        <div class="flex space-x-2">
+                            <input id="admin-user-search" type="text" placeholder="Search by email or name" class="flex-1 p-3 rounded-lg input-field">
+                            <button onclick="searchUsers()" class="p-3 rounded-lg btn-accent">Search</button>
+                        </div>
+                    </div>
+
+                    <div class="card-bg p-4 rounded-lg">
+                        <h3 class="font-semibold mb-3">User List</h3>
+                        <div id="admin-users-list" class="space-y-2 max-h-64 overflow-y-auto">
+                            <!-- Users will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Withdrawals Management Tab -->
+                <div id="admin-withdrawals-tab" class="admin-tab-content hidden">
+                    <div class="card-bg p-4 rounded-lg">
+                        <h3 class="font-semibold mb-3">Pending Withdrawals</h3>
+                        <div id="admin-withdrawals-list" class="space-y-3 max-h-64 overflow-y-auto">
+                            <!-- Pending withdrawals will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pro Jobs Management Tab -->
+                <div id="admin-pro-jobs-tab" class="admin-tab-content hidden">
+                    <div class="card-bg p-4 rounded-lg">
+                        <h3 class="font-semibold mb-3">Pending Pro Job Submissions</h3>
+                        <div id="admin-pro-jobs-list" class="space-y-3 max-h-64 overflow-y-auto">
+                            <!-- Pending pro job submissions will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav sticky bottom-0 grid grid-cols-5 items-center text-center py-2 card-bg">
+            <a href="#" class="nav-link" data-page="home-page"><i data-lucide="home" class="mx-auto w-6 h-6"></i><span class="text-xs">Home</span></a>
+            <a href="#" class="nav-link" data-page="wallet-page"><i data-lucide="wallet" class="mx-auto w-6 h-6"></i><span class="text-xs">Wallet</span></a>
+            <a href="#" class="nav-link" data-page="refer-page"><i data-lucide="users" class="mx-auto w-6 h-6"></i><span class="text-xs">Refer</span></a>
+            <a href="#" class="nav-link" data-page="daily-jobs-page"><i data-lucide="briefcase" class="mx-auto w-6 h-6"></i><span class="text-xs">Daily Jobs</span></a>
+            <a href="#" class="nav-link" data-page="pro-jobs-page"><i data-lucide="award" class="mx-auto w-6 h-6"></i><span class="text-xs">Pro Jobs</span></a>
+        </nav>
+    </div>
+    
+    <div id="custom-alert" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-sm text-center">
+            <p id="alert-message" class="mb-4"></p>
+            <button id="alert-ok-btn" class="btn-accent px-6 py-2 rounded-lg">OK</button>
+        </div>
+    </div>
+
+    <script type="module">
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBnaXav_M1C45PHs78D7n1QlnR1G9e6SY",
+            authDomain: "arningappbot-a7aca.firebaseapp.com",
+            projectId: "arningappbot-a7aca",
+            storageBucket: "arningappbot-a7aca.firebasestorage.app",
+            messagingSenderId: "357948746475",
+            appId: "1:357948746475:web:e58919995bb8a066d9ecae"
+        };
+        
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, limit, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let userData = null;
+        let appConfig = {};
+
+        const loader = document.getElementById('loader');
+        const coinBalanceEl = document.getElementById('coin-balance');
+        const walletCoinBalanceEl = document.getElementById('wallet-coin-balance');
+        const profileNameEl = document.getElementById('profile-name');
+        const profileEmailEl = document.getElementById('profile-email');
+        const referralCodeEl = document.getElementById('referral-code');
+        const minWithdrawalInfoEl = document.getElementById('min-withdrawal-info');
+        const coinValueInfoEl = document.getElementById('coin-value-info');
+        const withdrawMethodSelect = document.getElementById('withdraw-method');
+        const notificationDot = document.getElementById('notification-dot');
+        const adsLeftCountEl = document.getElementById('ads-left-count');
+        const paymentDetailsContainer = document.getElementById('payment-details-container');
+
+        let currentJobTracking = null; // {jobId, startTime, jobLink}
+        let currentProJobId = null; // Track which pro job is being submitted
+
+        window.onload = () => {
+            lucide.createIcons();
+            setupEventListeners();
+            showMainPage('auth-section');
+            loader.style.display = 'none';
+            onAuthStateChanged(auth, handleAuthStateChange);
+        };
+
+        async function handleAuthStateChange(user) {
+            if (user) {
+                loader.style.display = 'flex';
+                currentUser = user;
+                await fetchUserData();
+                if (userData.isBlocked) {
+                    showAlert("Aapka account block kar diya gaya hai.");
+                    await signOut(auth);
+                    loader.style.display = 'none';
+                    return;
+                }
+                await fetchAppConfig();
+                await checkNewNotifications();
+                checkAdminAccess();
+                updateUI();
+                showMainPage('app-container');
+                navigateTo('home-page');
+                loader.style.display = 'none';
+            } else {
+                currentUser = null;
+                userData = null;
+                showMainPage('auth-section');
+            }
+        }
+
+        async function fetchUserData() {
+            if (!currentUser) return;
+            const userRef = doc(db, "users", currentUser.uid);
+            try {
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    userData = userSnap.data();
+                } else {
+                    const ownReferralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                    const defaultUserData = {
+                        uid: currentUser.uid, name: currentUser.email.split('@')[0], email: currentUser.email,
+                        balance: 50, referralCode: ownReferralCode, referredBy: null,
+                        lastNotificationCheck: new Date(),
+                        createdAt: serverTimestamp(),
+                        dailyAdCount: 0, lastAdWatchDate: new Date().toISOString().split('T')[0], isBlocked: false
+                    };
+                    await setDoc(userRef, defaultUserData);
+                    userData = defaultUserData;
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                showAlert("User data load karne mein error aayi.");
+            }
+        }
+
+        async function fetchAppConfig() {
+            const configRef = doc(db, "config", "main");
+            try {
+                const configSnap = await getDoc(configRef);
+                appConfig = configSnap.exists() ? configSnap.data() : { 
+                    minWithdrawal: 5000, 
+                    paymentMethods: ["UPI", "Paytm", "Bkash", "Nagad"], 
+                    dailyAdLimit: 10, 
+                    coinValueCoins: 1000, 
+                    coinValueInr: 10 
+                };
+            } catch (error) {
+                console.error("Error fetching app config:", error);
+            }
+        }
+        
+        function updateUI() {
+            if (!userData) return;
+            const balance = userData.balance || 0;
+            coinBalanceEl.textContent = balance;
+            walletCoinBalanceEl.textContent = balance;
+            profileNameEl.textContent = userData.name || 'No Name';
+            profileEmailEl.textContent = userData.email || 'No Email';
+            referralCodeEl.textContent = userData.referralCode || '...';
+            minWithdrawalInfoEl.textContent = `${appConfig.minWithdrawal || 5000} Coins`;
+            coinValueInfoEl.textContent = `${appConfig.coinValueCoins || 1000} Coins = ₹${appConfig.coinValueInr || 10}`;
+            
+            // Update payment methods dropdown
+            withdrawMethodSelect.innerHTML = '';
+            (appConfig.paymentMethods || []).forEach(method => {
+                const option = document.createElement('option');
+                option.value = method;
+                option.textContent = method;
+                withdrawMethodSelect.appendChild(option);
+            });
+            
+            updateDynamicPaymentFields();
+            updateAdsLeftCount();
+            
+            // Setup Pro Jobs
+            setupProJobs();
+        }
+
+        function updateAdsLeftCount() {
+            const today = new Date().toISOString().split('T')[0];
+            if (userData.lastAdWatchDate !== today) {
+                userData.dailyAdCount = 0;
+            }
+            const adsLeft = Math.max(0, (appConfig.dailyAdLimit || 10) - userData.dailyAdCount);
+            adsLeftCountEl.textContent = adsLeft;
+        }
+
+        function updateDynamicPaymentFields() {
+            const selectedMethod = withdrawMethodSelect.value.toLowerCase();
+            let placeholder = "Detail Daalein";
+            if (selectedMethod.includes('upi')) placeholder = "Apni UPI ID Daalein";
+            if (selectedMethod.includes('paytm')) placeholder = "Apna Paytm Number Daalein";
+            if (selectedMethod.includes('bkash')) placeholder = "Apna Bkash Number Daalein";
+            if (selectedMethod.includes('nagad')) placeholder = "Apna Nagad Number Daalein";
+            paymentDetailsContainer.innerHTML = `<input id="payment-detail-input" type="text" placeholder="${placeholder}" class="w-full p-3 rounded-lg input-field">`;
+        }
+
+        function showMainPage(pageId) {
+            document.querySelectorAll('.main-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function navigateTo(pageId) {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active', 'text-accent');
+                if (link.dataset.page === pageId) link.classList.add('active', 'text-accent');
+            });
+            
+            if (pageId === 'admin-panel') {
+                loadAdminDashboard();
+            } else if (pageId === 'pro-jobs-page') {
+                updateProJobButtonStates();
+            }
+        }
+        window.navigateTo = navigateTo;
+
+        function setupEventListeners() {
+            document.getElementById('show-signup').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('login-view').classList.add('hidden'); document.getElementById('signup-view').classList.remove('hidden'); });
+            document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('signup-view').classList.add('hidden'); document.getElementById('login-view').classList.remove('hidden'); });
+            document.getElementById('signup-btn').addEventListener('click', handleSignup);
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = link.dataset.page;
+                    if (pageId === 'wallet-page') loadWithdrawalHistory();
+                    navigateTo(pageId);
+                });
+            });
+            document.getElementById('notification-bell').addEventListener('click', () => { navigateTo('notifications-page'); loadNotifications(); });
+            document.getElementById('copy-code-btn').addEventListener('click', copyReferralCode);
+            document.getElementById('share-btn').addEventListener('click', shareReferralCode);
+            document.getElementById('withdraw-btn').addEventListener('click', handleWithdrawal);
+            document.getElementById('home-withdraw-btn').addEventListener('click', () => navigateTo('wallet-page'));
+            document.getElementById('apply-referral-btn').addEventListener('click', handleApplyReferralCode);
+            withdrawMethodSelect.addEventListener('change', updateDynamicPaymentFields);
+            setupDailyJobs();
+        }
+
+        async function handleSignup() {
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            if (!name || !email || !password) return showAlert("সব ফিল্ড পূরণ করুন।");
+            loader.style.display = 'flex';
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                showAlert(error.message);
+                loader.style.display = 'none';
+            }
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            if (!email || !password) return showAlert("ইমেইল এবং পাসওয়ার্ড দিন।");
+            loader.style.display = 'flex';
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                showAlert(error.message);
+                loader.style.display = 'none';
+            }
+        }
+
+        async function handleLogout() { await signOut(auth); }
+        
+        async function checkNewNotifications() {
+            const lastCheck = userData.lastNotificationCheck;
+            if (!lastCheck || typeof lastCheck.seconds === 'undefined') {
+                console.log("lastNotificationCheck is not a valid timestamp yet. Skipping check.");
+                return;
+            }
+            const q = query(collection(db, "notifications"), where("createdAt", ">", lastCheck), limit(1));
+            const querySnapshot = await getDocs(q);
+            notificationDot.style.display = querySnapshot.empty ? 'none' : 'block';
+        }
+
+        async function loadNotifications() {
+            const listEl = document.getElementById('notifications-list');
+            listEl.innerHTML = '<p class="text-gray-400">Loading...</p>';
+            notificationDot.style.display = 'none';
+            const q = query(collection(db, "notifications"), orderBy("createdAt", "desc"));
+            try {
+                const querySnapshot = await getDocs(q);
+                if (querySnapshot.empty) {
+                    listEl.innerHTML = '<p class="text-gray-400 text-center">Koi notifications nahi hain.</p>';
+                    return;
+                }
+                listEl.innerHTML = '';
+                querySnapshot.forEach(doc => {
+                    const msg = doc.data();
+                    const date = msg.createdAt ? msg.createdAt.toDate().toLocaleDateString() : 'N/A';
+                    listEl.innerHTML += `<div class="card-bg p-4 rounded-lg"><div class="flex justify-between items-center mb-1"><h3 class="font-bold">${msg.title}</h3><p class="text-xs text-gray-400">${date}</p></div><p class="text-sm text-gray-300">${msg.message}</p></div>`;
+                });
+                await updateDoc(doc(db, "users", currentUser.uid), { lastNotificationCheck: serverTimestamp() });
+            } catch (error) {
+                console.error("Error loading notifications:", error);
+                listEl.innerHTML = '<p class="text-red-400">Notifications load karne mein error aayi.</p>';
+            }
+        }
+
+        async function loadWithdrawalHistory() {
+            const historyList = document.getElementById('withdrawal-history-list');
+            historyList.innerHTML = '<p class="text-gray-400">History load ho rahi hai...</p>';
+            const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.uid));
+            try {
+                const querySnapshot = await getDocs(q);
+                if (querySnapshot.empty) {
+                    historyList.innerHTML = '<p class="text-gray-400">Aapne abhi tak koi withdrawal nahi kiya hai.</p>';
+                    return;
+                }
+                const withdrawals = [];
+                querySnapshot.forEach(doc => withdrawals.push(doc.data()));
+                withdrawals.sort((a, b) => (b.requestedAt?.seconds || 0) - (a.requestedAt?.seconds || 0));
+                historyList.innerHTML = '';
+                withdrawals.forEach(request => {
+                    const status = request.status;
+                    let statusColor = 'text-yellow-400';
+                    if (status === 'approved') statusColor = 'text-green-400';
+                    else if (status === 'rejected') statusColor = 'text-red-400';
+                    const date = request.requestedAt ? request.requestedAt.toDate().toLocaleDateString() : 'N/A';
+                    historyList.innerHTML += `<div class="card-bg p-3 rounded-lg flex items-center justify-between"><div><p class="font-semibold">${request.amount} Coins - ${request.method}</p><p class="text-xs text-gray-400">${date}</p></div><p class="font-bold ${statusColor} capitalize">${status}</p></div>`;
+                });
+            } catch (error) {
+                console.error("Error fetching withdrawal history: ", error);
+                historyList.innerHTML = '<p class="text-red-400">History load karne mein error aayi.</p>';
+            }
+        }
+        
+        async function handleApplyReferralCode() {
+            if (userData.referredBy) return showAlert("আপনি ইতিমধ্যে একটি রেফারেল কোড ব্যবহার করেছেন।");
+            const codeInput = document.getElementById('enter-referral-code');
+            const code = codeInput.value.trim().toUpperCase();
+            if (!code) return showAlert("একটি কোড লিখুন।");
+            if (code === userData.referralCode) return showAlert("নিজের কোড ব্যবহার করতে পারবেন না।");
+            loader.style.display = 'flex';
+            await applyReferralBonus(code, true);
+            codeInput.value = '';
+            loader.style.display = 'none';
+        }
+
+        async function applyReferralBonus(referrerCode, isManualApply = false) {
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("referralCode", "==", referrerCode));
+            try {
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    const referrerDoc = querySnapshot.docs[0];
+                    const referrerRef = doc(db, "users", referrerDoc.id);
+                    const referrerData = referrerDoc.data();
+                    await updateDoc(referrerRef, { balance: (referrerData.balance || 0) + 100 });
+                    const newUserRef = doc(db, "users", currentUser.uid);
+                    await updateDoc(newUserRef, { balance: (userData.balance || 0) + 100, referredBy: referrerCode });
+                    userData.balance += 100; userData.referredBy = referrerCode;
+                    updateUI();
+                    if(isManualApply) showAlert("কোড সফলভাবে ব্যবহার হয়েছে! ১০০ কয়েন পেয়েছেন।");
+                } else {
+                    if(isManualApply) showAlert("ভুল রেফারেল কোড।");
+                }
+            } catch(error) {
+                console.error("Error applying referral bonus: ", error);
+                if(isManualApply) showAlert("কোড ব্যবহারে সমস্যা হয়েছে।");
+            }
+        }
+
+        async function updateBalance(amount) {
+            if (!currentUser) return;
+            const newBalance = (userData.balance || 0) + amount;
+            const userRef = doc(db, "users", currentUser.uid);
+            await updateDoc(userRef, { balance: newBalance });
+            userData.balance = newBalance;
+            updateUI();
+        }
+
+        async function handleWithdrawal() {
+            const amount = parseInt(document.getElementById('withdraw-amount').value);
+            const method = document.getElementById('withdraw-method').value;
+            const paymentDetailInput = document.getElementById('payment-detail-input');
+            const paymentDetail = paymentDetailInput ? paymentDetailInput.value.trim() : '';
+            const minWithdrawal = appConfig.minWithdrawal || 5000;
+
+            if (!amount || amount <= 0) return showAlert("সঠিক পরিমাণ লিখুন।");
+            if (amount < minWithdrawal) return showAlert(`সর্বনিম্ন উত্তোলন ${minWithdrawal} কয়েন।`);
+            if (amount > userData.balance) return showAlert("পর্যাপ্ত ব্যালেন্স নেই।");
+            if (!paymentDetail) return showAlert("পেমেন্ট বিবরণ দিন (UPI ID, Paytm, Bkash বা Nagad নম্বর)।");
+
+            try {
+                await updateBalance(-amount);
+                await addDoc(collection(db, "withdrawals"), {
+                    userId: currentUser.uid, userName: userData.name, userEmail: userData.email,
+                    amount: amount, method: method, paymentDetail: paymentDetail, status: "pending", requestedAt: serverTimestamp()
+                });
+                showAlert("উত্তোলনের অনুরোধ সফলভাবে জমা দেওয়া হয়েছে!");
+                document.getElementById('withdraw-amount').value = '';
+                paymentDetailInput.value = '';
+            } catch (error) {
+                showAlert("Request submit করতে সমস্যা: " + error.message);
+                await updateBalance(amount);
+            }
+        }
+
+        function copyReferralCode() {
+            const textToCopy = referralCodeEl.textContent;
+            const textArea = document.createElement("textarea");
+            textArea.style.position = 'fixed'; textArea.style.top = '-100px';
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showAlert("রেফারেল কোড কপি হয়েছে!");
+            } catch (err) {
+                showAlert("কোড কপি করতে ব্যর্থ।");
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        function shareReferralCode() {
+            const text = `CashReward এ যোগ দিন এবং টাকা আয় করুন! বোনাস পেতে আমার রেফারেল কোড ব্যবহার করুন: ${userData.referralCode}`;
+            if (navigator.share) {
+                navigator.share({ title: 'CashReward এ যোগ দিন!', text: text, url: window.location.href })
+                    .catch((error) => console.error("Share failed:", error));
+            } else {
+                copyReferralCode();
+                showAlert("শেয়ার ফিচার উপলব্ধ নেই। রেফারেল কোড কপি করা হয়েছে!");
+            }
+        }
+
+        window.claimReward = async function(taskType) {
+            const today = new Date().toISOString().split('T')[0];
+            const userRef = doc(db, "users", currentUser.uid);
+
+            if (userData.lastAdWatchDate !== today) {
+                await updateDoc(userRef, { dailyAdCount: 0, lastAdWatchDate: today });
+                userData.dailyAdCount = 0;
+                userData.lastAdWatchDate = today;
+            }
+
+            if (userData.dailyAdCount >= (appConfig.dailyAdLimit || 10)) {
+                return showAlert("Aapki aaj ki ad dekhne ki seema poori ho gayi hai.");
+            }
+            
+            if (typeof window.show_9391539 !== 'function') {
+                return showAlert("Ad service abhi uplabdh nahi hai. Kripya baad mein prayas karein.");
+            }
+            
+            let adPromise;
+            switch(taskType) {
+                case 'interstitial':
+                    adPromise = window.show_9391539();
+                    break;
+                case 'popup':
+                    adPromise = window.show_9391539('pop');
+                    break;
+                case 'inApp':
+                    adPromise = window.show_9391539({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+                    break;
+                case 'miniApp':
+                    adPromise = window.show_9391539();
+                    break;
+                default:
+                    return;
+            }
+
+            adPromise.then(async () => {
+                const newCount = (userData.dailyAdCount || 0) + 1;
+                await updateDoc(userRef, { dailyAdCount: newCount });
+                userData.dailyAdCount = newCount;
+                
+                let rewardAmount = 0;
+                if (taskType === 'miniApp') {
+                    rewardAmount = 100; // Mini App ka zyada reward
+                } else if (taskType !== 'inApp') {
+                    rewardAmount = 50;
+                }
+
+                if (rewardAmount > 0) {
+                    updateBalance(rewardAmount);
+                    showAlert(`Badhai ho! Aapne ${rewardAmount} coins jeete hain.`);
+                }
+                updateAdsLeftCount();
+            }).catch(e => {
+                console.error("Ad error:", e);
+                showAlert('Ad nahi dikhaya ja saka. Kripya baad mein prayas karein.');
+            });
+        }
+
+        function showAlert(message) {
+            document.getElementById('alert-message').textContent = message;
+            document.getElementById('custom-alert').classList.remove('hidden');
+            document.getElementById('alert-ok-btn').onclick = () => {
+                document.getElementById('custom-alert').classList.add('hidden');
+            };
+        }
+        window.showAlert = showAlert;
+
+        async function setupDailyJobs() {
+            const jobsContainer = document.getElementById('daily-jobs-container');
+            if (!jobsContainer) return;
+
+            let jobLinks = {};
+            try {
+                const configRef = doc(db, 'config', 'daily_job_links');
+                const configDoc = await getDoc(configRef);
+                if (configDoc.exists()) {
+                    jobLinks = configDoc.data();
+                }
+            } catch (error) {
+                console.log("[v0] Error fetching job links:", error);
+            }
+
+            // Default job names
+            const jobNames = [
+                'Watch Short Video', 'Complete Survey', 'Download App', 'Share Post', 'Like Page',
+                'Follow Account', 'Rate App', 'Join Group', 'Watch Ad', 'Click Link',
+                'Read Article', 'Play Game', 'Subscribe Channel', 'Comment Post', 'Upload Photo',
+                'Invite Friend', 'Check-in Daily', 'Spin Wheel', 'Quiz Challenge', 'Social Share'
+            ];
+
+            jobsContainer.innerHTML = '';
+            
+            for (let i = 1; i <= 20; i++) {
+                const jobLink = jobLinks[`job${i}`] || '#';
+                const jobDiv = document.createElement('div');
+                jobDiv.className = 'bg-gray-800 p-4 rounded-lg flex items-center justify-between';
+                jobDiv.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">${i}</div>
+                        <div>
+                            <h3 class="text-white font-medium">${jobNames[i-1]}</h3>
+                            <p class="text-gray-400 text-sm">Earn 10 coins</p>
+                        </div>
+                    </div>
+                    <button id="job-btn-${i}" onclick="handleJobClick(${i}, '${jobLink}')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        Start
+                    </button>
+                `;
+                jobDiv.querySelector('button').setAttribute('data-job-link', jobLink);
+                jobsContainer.appendChild(jobDiv);
+            }
+            
+            updateJobButtonStates();
+        }
+
+        async function updateJobButtonStates() {
+            if (!currentUser) return;
+            
+            const completedJobsRef = collection(db, 'daily_jobs_completed');
+            const q = query(completedJobsRef, where('userId', '==', currentUser.uid));
+            
+            try {
+                const completedJobs = await getDocs(q);
+                const jobCompletions = {};
+                
+                completedJobs.forEach(doc => {
+                    const data = doc.data();
+                    const jobId = data.jobId;
+                    const completedAt = data.completedAt.toDate();
+                    
+                    if (!jobCompletions[jobId] || completedAt > jobCompletions[jobId]) {
+                        jobCompletions[jobId] = completedAt;
+                    }
+                });
+                
+                // Update each job button
+                for (let i = 1; i <= 20; i++) {
+                    const button = document.getElementById(`job-btn-${i}`);
+                    if (!button) continue;
+                    
+                    const lastCompleted = jobCompletions[i];
+                    if (lastCompleted) {
+                        const now = new Date();
+                        const timeDiff = now - lastCompleted;
+                        const eightHours = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+                        
+                        if (timeDiff < eightHours) {
+                            // Still in cooldown
+                            const remainingTime = eightHours - timeDiff;
+                            const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+                            const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+                            
+                            button.textContent = `${hours}h ${minutes}m`;
+                            button.className = 'bg-red-600 text-white px-4 py-2 rounded-lg font-medium cursor-not-allowed';
+                            button.disabled = true;
+                            button.onclick = null;
+                        } else {
+                            // Cooldown finished, ready again
+                            button.textContent = 'Start';
+                            button.className = 'bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors';
+                            button.disabled = false;
+                            const jobLink = button.getAttribute('data-job-link') || '#';
+                            button.onclick = () => handleJobClick(i, jobLink);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error updating job button states:", error);
+            }
+        }
+
+        window.handleJobClick = async function(jobId, jobLink) {
+            if (!currentUser) return showAlert("লগইন করুন।");
+            
+            const completedJobsRef = collection(db, 'daily_jobs_completed');
+            const q = query(completedJobsRef, 
+                where('userId', '==', currentUser.uid),
+                where('jobId', '==', jobId)
+            );
+            
+            const completedJobs = await getDocs(q);
+            let lastCompleted = null;
+            
+            completedJobs.forEach(doc => {
+                const completedAt = doc.data().completedAt.toDate();
+                if (!lastCompleted || completedAt > lastCompleted) {
+                    lastCompleted = completedAt;
+                }
+            });
+            
+            if (lastCompleted) {
+                const now = new Date();
+                const timeDiff = now - lastCompleted;
+                const eightHours = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+                
+                if (timeDiff < eightHours) {
+                    const remainingTime = eightHours - timeDiff;
+                    const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+                    const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+                    return showAlert(`এই কাজটি আবার করতে আরো ${hours} ঘন্টা ${minutes} মিনিট অপেক্ষা করুন।`);
+                }
+            }
+            
+            // If no link set, show message
+            if (!jobLink || jobLink === '#') {
+                return showAlert("এই কাজের লিংক এখনো সেট করা হয়নি।");
+            }
+            
+            currentJobTracking = {
+                jobId: jobId,
+                startTime: Date.now(),
+                jobLink: jobLink
+            };
+            
+            // Open link in new tab
+            window.open(jobLink, '_blank');
+            
+            // Show instruction message
+            showAlert("অ্যাড দেখার জন্য ১৫ সেকেন্ড অপেক্ষা করুন, তারপর এই পেজে ফিরে আসুন।");
+        };
+
+        async function completeJobAfterValidation(jobId) {
+            try {
+                await addDoc(collection(db, 'daily_jobs_completed'), {
+                    userId: currentUser.uid,
+                    userName: userData.name || 'Unknown',
+                    jobId: jobId,
+                    completedAt: serverTimestamp(),
+                    coinsEarned: 10,
+                    userAgent: navigator.userAgent
+                });
+                
+                // Update user balance
+                const userRef = doc(db, 'users', currentUser.uid);
+                await updateDoc(userRef, {
+                    balance: increment(10)
+                });
+                
+                userData.balance += 10;
+                updateUI();
+                showAlert("🎉 সফল! ১০ কয়েন আপনার অ্যাকাউন্টে যোগ হয়েছে।");
+                
+                updateJobButtonStates();
+            } catch (error) {
+                console.error("Error completing job:", error);
+                showAlert("কাজ সম্পন্ন করতে সমস্যা হয়েছে।");
+            }
+        }
+
+        // Pro Jobs Functions
+        async function setupProJobs() {
+            const proJobsContainer = document.getElementById('pro-jobs-container');
+            if (!proJobsContainer) return;
+
+            let proJobLinks = {};
+            try {
+                const configRef = doc(db, 'config', 'pro_job_links');
+                const configDoc = await getDoc(configRef);
+                if (configDoc.exists()) {
+                    proJobLinks = configDoc.data();
+                }
+            } catch (error) {
+                console.log("[v0] Error fetching pro job links:", error);
+            }
+
+            // Default pro job names
+            const proJobNames = [
+                'Sign Up for Service 1', 'Sign Up for Service 2', 'Sign Up for Service 3', 
+                'Sign Up for Service 4', 'Sign Up for Service 5', 'Sign Up for Service 6',
+                'Sign Up for Service 7', 'Sign Up for Service 8', 'Sign Up for Service 9',
+                'Sign Up for Service 10'
+            ];
+
+            proJobsContainer.innerHTML = '';
+            
+            for (let i = 1; i <= 10; i++) {
+                const jobLink = proJobLinks[`projob${i}`] || '#';
+                const jobDiv = document.createElement('div');
+                jobDiv.className = 'bg-gray-800 p-4 rounded-lg flex items-center justify-between';
+                jobDiv.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">${i}</div>
+                        <div>
+                            <h3 class="text-white font-medium">${proJobNames[i-1]}</h3>
+                            <p class="text-gray-400 text-sm">Earn 100 coins</p>
+                        </div>
+                    </div>
+                    <button id="pro-job-btn-${i}" onclick="handleProJobClick(${i}, '${jobLink}')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        Start
+                    </button>
+                `;
+                jobDiv.querySelector('button').setAttribute('data-job-link', jobLink);
+                proJobsContainer.appendChild(jobDiv);
+            }
+            
+            updateProJobButtonStates();
+        }
+
+        async function updateProJobButtonStates() {
+            if (!currentUser) return;
+            
+            const proJobsRef = collection(db, 'pro_jobs_submissions');
+            const q = query(proJobsRef, where('userId', '==', currentUser.uid));
+            
+            try {
+                const proJobSubmissions = await getDocs(q);
+                const proJobStatus = {};
+                
+                proJobSubmissions.forEach(doc => {
+                    const data = doc.data();
+                    const jobId = data.jobId;
+                    
+                    if (!proJobStatus[jobId] || data.submittedAt > proJobStatus[jobId].submittedAt) {
+                        proJobStatus[jobId] = {
+                            status: data.status,
+                            submittedAt: data.submittedAt.toDate(),
+                            cooldownUntil: data.cooldownUntil ? data.cooldownUntil.toDate() : null
+                        };
+                    }
+                });
+                
+                // Update each pro job button
+                for (let i = 1; i <= 10; i++) {
+                    const button = document.getElementById(`pro-job-btn-${i}`);
+                    if (!button) continue;
+                    
+                    const jobStatus = proJobStatus[i];
+                    
+                    if (jobStatus) {
+                        const now = new Date();
+                        
+                        if (jobStatus.status === 'pending') {
+                            // Job is pending approval
+                            button.innerHTML = 'Pending <span class="pending">PENDING</span>';
+                            button.className = 'bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium cursor-not-allowed';
+                            button.disabled = true;
+                            button.onclick = null;
+                        } else if (jobStatus.status === 'approved') {
+                            // Job was approved, check cooldown
+                            if (jobStatus.cooldownUntil && now < jobStatus.cooldownUntil) {
+                                const remainingTime = jobStatus.cooldownUntil - now;
+                                const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+                                const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+                                
+                                button.innerHTML = `Cooldown <span class="timer">${hours}h ${minutes}m</span>`;
+                                button.className = 'bg-red-600 text-white px-4 py-2 rounded-lg font-medium cursor-not-allowed';
+                                button.disabled = true;
+                                button.onclick = null;
+                            } else {
+                                // Cooldown finished, ready again
+                                button.textContent = 'Start';
+                                button.className = 'bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors';
+                                button.disabled = false;
+                                const jobLink = button.getAttribute('data-job-link') || '#';
+                                button.onclick = () => handleProJobClick(i, jobLink);
+                            }
+                        } else if (jobStatus.status === 'rejected') {
+                            // Job was rejected, can try again
+                            button.textContent = 'Try Again';
+                            button.className = 'bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors';
+                            button.disabled = false;
+                            const jobLink = button.getAttribute('data-job-link') || '#';
+                            button.onclick = () => handleProJobClick(i, jobLink);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error updating pro job button states:", error);
+            }
+        }
+
+        window.handleProJobClick = async function(jobId, jobLink) {
+            if (!currentUser) return showAlert("লগইন করুন।");
+            
+            // Check if user already has a pending submission for this job
+            const proJobsRef = collection(db, 'pro_jobs_submissions');
+            const q = query(proJobsRef, 
+                where('userId', '==', currentUser.uid),
+                where('jobId', '==', jobId),
+                where('status', '==', 'pending')
+            );
+            
+            const pendingSubmissions = await getDocs(q);
+            
+            if (!pendingSubmissions.empty) {
+                return showAlert("আপনার এই কাজের জন্য একটি পেন্ডিং সাবমিশন আছে।");
+            }
+            
+            // If no link set, show message
+            if (!jobLink || jobLink === '#') {
+                return showAlert("এই কাজের লিংক এখনো সেট করা হয়নি।");
+            }
+            
+            // Open the submission modal
+            currentProJobId = jobId;
+            document.getElementById('pro-job-modal-title').textContent = `Submit Screenshots - Job ${jobId}`;
+            document.getElementById('pro-job-link').href = jobLink;
+            document.getElementById('pro-job-link').textContent = jobLink;
+            document.getElementById('before-screenshot-url').value = '';
+            document.getElementById('after-screenshot-url').value = '';
+            document.getElementById('pro-job-submission-modal').classList.remove('hidden');
+        };
+
+        window.closeProJobModal = function() {
+            document.getElementById('pro-job-submission-modal').classList.add('hidden');
+            currentProJobId = null;
+        };
+
+        window.submitProJobScreenshots = async function() {
+            if (!currentProJobId) return;
+            
+            const beforeScreenshot = document.getElementById('before-screenshot-url').value.trim();
+            const afterScreenshot = document.getElementById('after-screenshot-url').value.trim();
+            
+            if (!beforeScreenshot || !afterScreenshot) {
+                return showAlert("দয়া করে উভয় স্ক্রিনশট URL প্রদান করুন।");
+            }
+            
+            try {
+                // Calculate cooldown until date (24 hours from now)
+                const cooldownUntil = new Date();
+                cooldownUntil.setHours(cooldownUntil.getHours() + 24);
+                
+                // Save submission to database
+                await addDoc(collection(db, 'pro_jobs_submissions'), {
+                    userId: currentUser.uid,
+                    userName: userData.name || 'Unknown',
+                    jobId: currentProJobId,
+                    beforeScreenshot: beforeScreenshot,
+                    afterScreenshot: afterScreenshot,
+                    status: 'pending',
+                    submittedAt: serverTimestamp(),
+                    cooldownUntil: cooldownUntil
+                });
+                
+                showAlert("আপনার সাবমিশন সফলভাবে জমা হয়েছে! এটি পর্যালোচনা করা হবে।");
+                closeProJobModal();
+                updateProJobButtonStates();
+            } catch (error) {
+                console.error("Error submitting pro job:", error);
+                showAlert("সাবমিশন জমা দিতে সমস্যা হয়েছে।");
+            }
+        };
+
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && currentJobTracking) {
+                // User returned to the page
+                const timeSpent = Date.now() - currentJobTracking.startTime;
+                const requiredTime = 15 * 1000; // 15 seconds in milliseconds
+                
+                if (timeSpent >= requiredTime) {
+                    // User watched for 15+ seconds - complete the job
+                    completeJobAfterValidation(currentJobTracking.jobId);
+                } else {
+                    // User returned too early - show warning
+                    const remainingSeconds = Math.ceil((requiredTime - timeSpent) / 1000);
+                    showAlert(`⚠️ সতর্কবার্তা: আপনি খুব তাড়াতাড়ি ফিরে এসেছেন! অ্যাড দেখার জন্য আরো ${remainingSeconds} সেকেন্ড অপেক্ষা করুন।`);
+                }
+                
+                // Reset tracking
+                currentJobTracking = null;
+            }
+        });
+
+        window.addEventListener('focus', function() {
+            if (currentJobTracking) {
+                // Small delay to ensure visibility change event fires first
+                setTimeout(() => {
+                    if (currentJobTracking) {
+                        const timeSpent = Date.now() - currentJobTracking.startTime;
+                        const requiredTime = 15 * 1000;
+                        
+                        if (timeSpent >= requiredTime) {
+                            completeJobAfterValidation(currentJobTracking.jobId);
+                        } else {
+                            const remainingSeconds = Math.ceil((requiredTime - timeSpent) / 1000);
+                            showAlert(`⚠️ সতর্কবার্তা: আপনি খুব তাড়াতাড়ি ফিরে এসেছেন! অ্যাড দেখার জন্য আরো ${remainingSeconds} সেকেন্ড অপেক্ষা করুন।`);
+                        }
+                        currentJobTracking = null;
+                    }
+                }, 100);
+            }
+        });
+
+        function checkAdminAccess() {
+            const adminEmails = ['admin@cashreward.com', 'owner@cashreward.com'];
+            const adminAccess = document.getElementById('admin-access');
+            if (adminEmails.includes(currentUser?.email)) {
+                adminAccess.classList.remove('hidden');
+            } else {
+                adminAccess.classList.add('hidden');
+            }
+        }
+
+        async function loadAdminDashboard() {
+            // Load admin dashboard data
+            await loadAdminProJobs();
+        }
+
+        function showAdminTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.admin-tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-600', 'text-white');
+                btn.classList.add('card-bg', 'text-gray-400');
+            });
+            
+            // Show selected tab content
+            document.getElementById(`admin-${tabName}-tab`).classList.remove('hidden');
+            
+            // Add active class to selected tab button
+            document.getElementById(`${tabName}-tab`).classList.remove('card-bg', 'text-gray-400');
+            document.getElementById(`${tabName}-tab`).classList.add('bg-purple-600', 'text-white');
+        }
+
+        async function loadAdminProJobs() {
+            const proJobsList = document.getElementById('admin-pro-jobs-list');
+            proJobsList.innerHTML = '<p class="text-gray-400">Loading pro job submissions...</p>';
+            
+            try {
+                const q = query(collection(db, 'pro_jobs_submissions'), 
+                    where('status', '==', 'pending'),
+                    orderBy('submittedAt', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    proJobsList.innerHTML = '<p class="text-gray-400 text-center">No pending pro job submissions.</p>';
+                    return;
+                }
+                
+                proJobsList.innerHTML = '';
+                
+                querySnapshot.forEach(doc => {
+                    const submission = doc.data();
+                    const submittedAt = submission.submittedAt.toDate().toLocaleString();
+                    
+                    proJobsList.innerHTML += `
+                        <div class="card-bg p-4 rounded-lg">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h4 class="font-semibold">${submission.userName || 'Unknown User'}</h4>
+                                    <p class="text-sm text-gray-400">Job ID: ${submission.jobId}</p>
+                                    <p class="text-xs text-gray-500">Submitted: ${submittedAt}</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="approveProJob('${doc.id}', '${submission.userId}', ${submission.jobId})" class="bg-green-600 text-white px-3 py-1 rounded text-sm">Approve</button>
+                                    <button onclick="rejectProJob('${doc.id}')" class="bg-red-600 text-white px-3 py-1 rounded text-sm">Reject</button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <p class="text-xs text-gray-400 mb-1">Before Screenshot:</p>
+                                    <a href="${submission.beforeScreenshot}" target="_blank" class="text-blue-400 text-xs underline">View Image</a>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400 mb-1">After Screenshot:</p>
+                                    <a href="${submission.afterScreenshot}" target="_blank" class="text-blue-400 text-xs underline">View Image</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error("Error loading pro jobs:", error);
+                proJobsList.innerHTML = '<p class="text-red-400">Error loading pro job submissions.</p>';
+            }
+        }
+
+        window.approveProJob = async function(submissionId, userId, jobId) {
+            try {
+                const submissionRef = doc(db, 'pro_jobs_submissions', submissionId);
+                
+                // Update submission status to approved
+                await updateDoc(submissionRef, {
+                    status: 'approved',
+                    processedAt: serverTimestamp(),
+                    processedBy: currentUser.email
+                });
+                
+                // Add 100 coins to user's balance
+                const userRef = doc(db, 'users', userId);
+                const userSnap = await getDoc(userRef);
+                
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    const newBalance = (userData.balance || 0) + 100;
+                    
+                    await updateDoc(userRef, {
+                        balance: newBalance
+                    });
+                    
+                    // Log the balance change
+                    await addDoc(collection(db, "balance_changes"), {
+                        userId: userId,
+                        userName: userData.name || 'Unknown',
+                        previousBalance: userData.balance || 0,
+                        newBalance: newBalance,
+                        changeAmount: 100,
+                        reason: 'Pro job approval',
+                        changedBy: currentUser.email,
+                        changedAt: serverTimestamp()
+                    });
+                }
+                
+                showAlert("Pro job approved successfully! User received 100 coins.");
+                await loadAdminProJobs();
+            } catch (error) {
+                console.error("Error approving pro job:", error);
+                showAlert("Error approving pro job.");
+            }
+        };
+
+        window.rejectProJob = async function(submissionId) {
+            try {
+                const submissionRef = doc(db, 'pro_jobs_submissions', submissionId);
+                
+                // Update submission status to rejected
+                await updateDoc(submissionRef, {
+                    status: 'rejected',
+                    processedAt: serverTimestamp(),
+                    processedBy: currentUser.email
+                });
+                
+                showAlert("Pro job rejected successfully.");
+                await loadAdminProJobs();
+            } catch (error) {
+                console.error("Error rejecting pro job:", error);
+                showAlert("Error rejecting pro job.");
+            }
+        };
+
+        function saveJobSettings() {
+            console.log("[v0] Saving job settings");
+        }
+
+        function resetJobForm() {
+            console.log("[v0] Resetting job form");
+        }
+
+        function toggleUserBlock() {
+            console.log("[v0] Toggling user block");
+        }
+
+        function updateWithdrawalStatus() {
+            console.log("[v0] Updating withdrawal status");
+        }
+
+        function searchUsers() {
+            console.log("[v0] Searching users");
+        }
+
+        function updateCooldownTimers() {
+            updateJobButtonStates();
+            updateProJobButtonStates();
+            // Update every minute
+            setInterval(updateJobButtonStates, 60000);
+            setInterval(updateProJobButtonStates, 60000);
+        }
+
+        // Make admin functions globally accessible
+        window.showAdminTab = showAdminTab;
+        window.saveJobSettings = saveJobSettings;
+        window.resetJobForm = resetJobForm;
+        window.toggleUserBlock = toggleUserBlock;
+        window.updateWithdrawalStatus = updateWithdrawalStatus;
+        window.searchUsers = searchUsers;
+
+        updateCooldownTimers();
+
+    </script>
+</body>
+</html>
